@@ -28,6 +28,8 @@ import PlayStateButton from '../../components/PlayStateButton';
 import { getUserId } from '@/utils/localstorageCredentials';
 import ItemAdminButton from '@/components/ItemAdminButton';
 import { TrailerButton } from '../../components/TrailerButton';
+import { useUpcomingEpisodes } from '../../hooks/api/useUpcomingEpisodes';
+import UpcomingEpisodeComponent from './UpcomingEpisodeComponent';
 
 interface SeriesPageProps {
     item: BaseItemDto;
@@ -39,6 +41,8 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
     const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
     const { data: seasons, isLoading, error } = useSeasons(item.Id || '');
     const [posterFailed, setPosterFailed] = useState(false);
+    const { data: upcomingEpisodes } = useUpcomingEpisodes(item.Id || '');
+    console.log('Upcoming Episodes:', upcomingEpisodes);
 
     const effectiveSelectedSeason =
         selectedSeason ||
@@ -162,6 +166,16 @@ const SeriesPage = ({ item, config }: SeriesPageProps) => {
                     />
                 </div>
             </div>
+            {upcomingEpisodes && upcomingEpisodes.length > 0 && (
+                <div>
+                    <h3 className="text-3xl font-bold mb-3">{t('upcoming_episodes')}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+                        {upcomingEpisodes.map((episode) => (
+                            <UpcomingEpisodeComponent key={episode.Id} episode={episode} t={t} />
+                        ))}
+                    </div>
+                </div>
+            )}
             <div>
                 <EpisodesDisplay
                     title={
