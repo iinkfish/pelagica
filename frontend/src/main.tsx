@@ -21,6 +21,7 @@ import SettingsPage from './pages/Settings/SettingsPage.tsx';
 import SearchPage from './pages/Search/SearchPage.tsx';
 import PelagicaThemeLoader from './components/PelagicaThemeProvider.tsx';
 import ThemeBrowserPage from './pages/ThemeBroser/ThemeBrowserPage.tsx';
+import { Toaster } from './components/ui/sonner.tsx';
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ createRoot(document.getElementById('root')!).render(
                         <KeyboardShortcuts />
                         <SearchCommand />
                         <PelagicaThemeLoader />
+                        <Toaster />
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/library" element={<LibraryPage />} />

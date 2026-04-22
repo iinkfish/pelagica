@@ -42,6 +42,7 @@ import { useDeleteTheme } from '@/hooks/api/themes/useDeleteTheme';
 import JsonFileUpload from '@/components/JsonFileUpload';
 import { useCreateTheme } from '@/hooks/api/themes/useCreateTheme';
 import { Link, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 
 const StringInput = ({
     label,
@@ -615,8 +616,10 @@ const SettingsPage = () => {
                 });
                 setSaveSuccess(true);
                 setTimeout(() => setSaveSuccess(false), 2000);
+                toast.success(t('settings_saved'));
             } catch (e) {
                 console.error('Error updating config:', e);
+                toast.error(t('settings_save_error'));
             }
         }
     };
@@ -669,17 +672,16 @@ const SettingsPage = () => {
                                 createTheme(theme, {
                                     onSuccess: () => {
                                         setShowThemeUploadDialog(false);
+                                        toast.success(t('theme_upload_success'));
                                     },
                                     onError: (e) => {
                                         console.error('Error creating theme:', e);
-                                        alert(
-                                            'Failed to upload theme. Please check the console for details.'
-                                        );
+                                        toast.error(t('theme_upload_error'));
                                     },
                                 });
                             } catch (e) {
                                 console.error('Invalid JSON:', e);
-                                alert('Invalid JSON file. Please check the console for details.');
+                                toast.error(t('theme_invalid_json'));
                             }
                         }}
                         disabled={isCreatingTheme}
