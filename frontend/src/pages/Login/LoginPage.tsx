@@ -17,9 +17,28 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '@/hooks/api/useConfig';
 import { getServerUrl } from '@/utils/localstorageCredentials';
+import { useServerBranding } from '../../hooks/api/useServerBranding';
+
+const Disclaimer = ({ text }: { text: string | null | undefined }) => {
+    if (!text) return null;
+    return (
+        <p className="mt-4 text-sm text-muted-foreground text-center whitespace-pre-wrap">
+            {text
+                .split('\n')
+                .filter((line) => !!line.trim())
+                .map((line, i, arr) => (
+                    <span key={i}>
+                        {line}
+                        {i < arr.length - 1 && <br />}
+                    </span>
+                ))}
+        </p>
+    );
+};
 
 const LoginPage = () => {
     const { config } = useConfig();
+    const { data: branding } = useServerBranding();
     const navigate = useNavigate();
     const { t } = useTranslation('login');
     const [step, setStep] = useState<'server' | 'login' | 'quickconnect'>(
@@ -302,6 +321,8 @@ const LoginPage = () => {
                                 {t('back_to_server')}
                             </Button>
                         </form>
+
+                        <Disclaimer text={branding?.LoginDisclaimer} />
                     </CardContent>
                 </Card>
             )}

@@ -9,3 +9,11 @@ export function getApi() {
 
     return createApi(server, token);
 }
+
+export function getUnauthenticatedApi() {
+    const server = getServerUrl();
+
+    if (!server) throw new Error('Server URL not set');
+
+    return createApi(server);
+}
