@@ -29,6 +29,7 @@ import {
 } from '../utils/localstorageSidebar';
 import { useState } from 'react';
 import { Button } from './ui/button';
+import { SUPPORTED_LIBRARY_COLLECTION_TYPES } from '../utils/supportedLibraryCollectionTypes';
 
 function serverUrlToDomain(url: string) {
     try {
@@ -48,6 +49,11 @@ const AppSidebar = () => {
     const { theme } = useTheme();
     const effectiveTheme = getEffectiveTheme(theme);
     const [libraryOpen, setLibraryOpen] = useState(getLibraryCollapsibleState);
+
+    const libraries =
+        views?.Items?.filter((library) =>
+            SUPPORTED_LIBRARY_COLLECTION_TYPES.includes(library.CollectionType!)
+        ) ?? [];
 
     return (
         <Sidebar variant="floating" collapsible="icon">
@@ -108,28 +114,27 @@ const AppSidebar = () => {
                                                         {t('library')}
                                                     </Link>
                                                 </Button>
-                                                {views?.Items?.length &&
-                                                    views?.Items?.length > 0 && (
-                                                        <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                                                    )}
+                                                {libraries?.length > 0 && (
+                                                    <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                                                )}
                                             </div>
                                         </SidebarMenuButton>
                                     </CollapsibleTrigger>
-                                    {views?.Items?.length && views?.Items?.length > 0 && (
+                                    {libraries?.length > 0 && (
                                         <CollapsibleContent>
                                             <SidebarMenuSub>
-                                                {views.Items.map((view) => (
-                                                    <SidebarMenuItem key={view.Id}>
+                                                {libraries.map((library) => (
+                                                    <SidebarMenuItem key={library.Id}>
                                                         <SidebarMenuButton asChild>
                                                             <Link
-                                                                to={`/library?library=${view.Id}`}
+                                                                to={`/library?library=${library.Id}`}
                                                             >
                                                                 <JellyfinLibraryIcon
                                                                     libraryType={
-                                                                        view.CollectionType
+                                                                        library.CollectionType
                                                                     }
                                                                 />
-                                                                {view.Name}
+                                                                {library.Name}
                                                             </Link>
                                                         </SidebarMenuButton>
                                                     </SidebarMenuItem>
