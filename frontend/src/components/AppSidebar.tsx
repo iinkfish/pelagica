@@ -30,6 +30,7 @@ import {
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { SUPPORTED_LIBRARY_COLLECTION_TYPES } from '../utils/supportedLibraryCollectionTypes';
+import { DynamicIcon, type IconName } from 'lucide-react/dynamic';
 
 function serverUrlToDomain(url: string) {
     try {
@@ -39,6 +40,37 @@ function serverUrlToDomain(url: string) {
         return url;
     }
 }
+
+export const LinkSidebarItem = ({
+    url,
+    text,
+    icon,
+}: {
+    url: string;
+    text: string;
+    icon: string;
+}) => {
+    if (!url) return null;
+    if (!text) text = url;
+    if (!icon) icon = 'link-2';
+
+    return (
+        <SidebarMenuItem>
+            <SidebarMenuButton
+                className="cursor-pointer"
+                title={text}
+                onClick={() => {
+                    window.open(url, '_blank');
+                }}
+            >
+                <>
+                    <DynamicIcon name={icon as IconName} />
+                    {text}
+                </>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    );
+};
 
 const AppSidebar = () => {
     const { t } = useTranslation('sidebar');
@@ -54,6 +86,8 @@ const AppSidebar = () => {
         views?.Items?.filter((library) =>
             SUPPORTED_LIBRARY_COLLECTION_TYPES.includes(library.CollectionType!)
         ) ?? [];
+
+    const validLinks = config?.links?.filter((link) => link.url && link.text) ?? [];
 
     return (
         <Sidebar variant="floating" collapsible="icon">
@@ -169,6 +203,23 @@ const AppSidebar = () => {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
+                {validLinks.length > 0 && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel>{t('category_links')}</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {validLinks.map((link, index) => (
+                                    <LinkSidebarItem
+                                        key={index}
+                                        url={link.url}
+                                        text={link.text}
+                                        icon={link.icon}
+                                    />
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
             </SidebarContent>
             <SidebarFooter>
                 <NavUser />

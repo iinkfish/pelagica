@@ -114,5 +114,14 @@
     "settings_save_error": "Failed to save settings. Please check the console for details.",
     "theme_upload_success": "Theme uploaded successfully!",
     "theme_upload_error": "Failed to upload theme. Please check the console for details.",
-    "theme_invalid_json": "Invalid JSON file. Please check the console for details."
+    "theme_invalid_json": "Invalid JSON file. Please check the console for details.",
+    "category_links": "Links",
+    "links_description": "Manage the links displayed in the Sidebar. You can add links to external websites, other web applications, or specific pages within your Jellyfin server.",
+    "no_links_configured": "No links configured yet.",
+    "add_link": "Add Link",
+    "link_text_placeholder": "Link label",
+    "link_url_placeholder": "https://example.com",
+    "link_icon_label": "Icon",
+    "link_icon_placeholder": "Pick an icon",
+    "link_icon_search_placeholder": "Search icons..."
 }

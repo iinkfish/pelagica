@@ -13,12 +13,13 @@ import {
     type DetailField,
     type HomeScreenSection,
     type SectionItemsConfig,
+    type ConfigLink,
 } from '@/hooks/api/useConfig';
 import { useState, useEffect, memo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Check, Trash2, Plus, Edit, ArrowUp, ArrowDown, Earth } from 'lucide-react';
+import { Check, Trash2, Plus, Edit, ArrowUp, ArrowDown, Earth, Link2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -43,6 +44,8 @@ import JsonFileUpload from '@/components/JsonFileUpload';
 import { useCreateTheme } from '@/hooks/api/themes/useCreateTheme';
 import { Link, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
+import { IconPicker, type IconName } from '../../components/ui/icon-picker';
+import { DynamicIcon } from 'lucide-react/dynamic';
 
 const StringInput = ({
     label,
@@ -520,6 +523,83 @@ const ItemsConfigEditor = ({
     );
 };
 
+const LinkRow = ({
+    link,
+    onChange,
+    onDelete,
+    onMoveUp,
+    onMoveDown,
+    canMoveUp,
+    canMoveDown,
+}: {
+    link: ConfigLink;
+    onChange: (link: ConfigLink) => void;
+    onDelete: () => void;
+    onMoveUp: () => void;
+    onMoveDown: () => void;
+    canMoveUp: boolean;
+    canMoveDown: boolean;
+}) => {
+    const { t } = useTranslation('settings');
+
+    return (
+        <div className="flex flex-col gap-3 rounded-lg border p-4">
+            <div className="flex items-start gap-3">
+                <IconPicker
+                    value={(link.icon || undefined) as IconName | undefined}
+                    onValueChange={(value) => onChange({ ...link, icon: value })}
+                    searchPlaceholder={t('link_icon_search_placeholder')}
+                    triggerPlaceholder={t('link_icon_placeholder')}
+                    showCategoryButtons={false}
+                >
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0"
+                        aria-label={t('link_icon_label')}
+                    >
+                        {link.icon ? (
+                            <DynamicIcon name={link.icon as IconName} className="h-4 w-4" />
+                        ) : (
+                            <Link2 className="h-4 w-4" />
+                        )}
+                    </Button>
+                </IconPicker>
+
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Input
+                        value={link.text}
+                        onChange={(e) => onChange({ ...link, text: e.target.value })}
+                        placeholder={t('link_text_placeholder')}
+                    />
+                    <Input
+                        value={link.url}
+                        onChange={(e) => onChange({ ...link, url: e.target.value })}
+                        placeholder={t('link_url_placeholder')}
+                    />
+                </div>
+
+                <div className="flex items-center gap-1">
+                    <Button onClick={onMoveUp} variant="ghost" size="sm" disabled={!canMoveUp}>
+                        <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button onClick={onMoveDown} variant="ghost" size="sm" disabled={!canMoveDown}>
+                        <ArrowDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        onClick={onDelete}
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const SettingsPage = () => {
     const { t } = useTranslation('settings');
     const { config, loading, error } = useConfig();
@@ -544,6 +624,7 @@ const SettingsPage = () => {
     const { mutate: deleteTheme, isPending: isDeletingTheme } = useDeleteTheme();
     const [showThemeUploadDialog, setShowThemeUploadDialog] = useState(false);
     const { mutate: createTheme, isPending: isCreatingTheme } = useCreateTheme();
+    const [links, setLinks] = useState<ConfigLink[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'general';
 
@@ -554,6 +635,15 @@ const SettingsPage = () => {
         const [moved] = updated.splice(index, 1);
         updated.splice(newIndex, 0, moved);
         setHomeScreenSections(updated);
+    };
+
+    const moveLink = (index: number, direction: -1 | 1) => {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= links.length) return;
+        const updated = [...links];
+        const [moved] = updated.splice(index, 1);
+        updated.splice(newIndex, 0, moved);
+        setLinks(updated);
     };
 
     useEffect(() => {
@@ -571,6 +661,7 @@ const SettingsPage = () => {
         setHomeScreenSections(config?.homeScreenSections || []);
         setServerThemeId(config?.serverThemeId || null);
         setServerName(config?.serverName || '');
+        setLinks(config?.links || []);
     }, [
         config?.serverAddress,
         config?.streamystatsUrl,
@@ -586,6 +677,7 @@ const SettingsPage = () => {
         config?.homeScreenSections,
         config?.serverThemeId,
         config?.serverName,
+        config?.links,
     ]);
 
     const handleUpdateConfig = async () => {
@@ -613,6 +705,9 @@ const SettingsPage = () => {
                         detailBadges:
                             detailBadges.length > 0 ? (detailBadges as DetailBadge[]) : [],
                     },
+                    links: links.map((link) => ({
+                        ...link,
+                    })),
                 });
                 setSaveSuccess(true);
                 setTimeout(() => setSaveSuccess(false), 2000);
@@ -701,6 +796,7 @@ const SettingsPage = () => {
                     <TabsTrigger value="itempage">{t('category_itempage')}</TabsTrigger>
                     <TabsTrigger value="branding">{t('category_branding')}</TabsTrigger>
                     <TabsTrigger value="themes">{t('category_themes')}</TabsTrigger>
+                    <TabsTrigger value="links">{t('category_links')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="branding" className="max-w-200">
                     <h1 className="mb-2 mt-2 text-2xl font-bold leading-none tracking-tight">
@@ -981,6 +1077,46 @@ const SettingsPage = () => {
                             {t('no_themes_installed')}
                         </p>
                     )}
+                </TabsContent>
+                <TabsContent value="links" className="max-w-200">
+                    <h1 className="mb-2 mt-2 text-2xl font-bold leading-none tracking-tight">
+                        {t('category_links')}
+                    </h1>
+                    <p className="mb-4 text-sm text-muted-foreground">{t('links_description')}</p>
+
+                    <div className="space-y-3">
+                        {links.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                {t('no_links_configured')}
+                            </p>
+                        ) : (
+                            links.map((link, index) => (
+                                <LinkRow
+                                    key={index}
+                                    link={link}
+                                    onChange={(updated) => {
+                                        const next = [...links];
+                                        next[index] = updated;
+                                        setLinks(next);
+                                    }}
+                                    onDelete={() => setLinks(links.filter((_, i) => i !== index))}
+                                    onMoveUp={() => moveLink(index, -1)}
+                                    onMoveDown={() => moveLink(index, 1)}
+                                    canMoveUp={index > 0}
+                                    canMoveDown={index < links.length - 1}
+                                />
+                            ))
+                        )}
+                    </div>
+
+                    <Button
+                        onClick={() => setLinks([...links, { url: '', text: '', icon: '' }])}
+                        className="mt-4"
+                        variant="outline"
+                    >
+                        <Plus />
+                        {t('add_link')}
+                    </Button>
                 </TabsContent>
             </Tabs>
             <SectionEditor

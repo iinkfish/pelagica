@@ -183,6 +183,15 @@ export interface ItemPageSettings {
     showWatchlistButton?: boolean;
 }
 
+export interface ConfigLink {
+    /** The URL the link points to */
+    url: string;
+    /** The text to display for the link */
+    text: string;
+    /** The icon to display for the link */
+    icon: string;
+}
+
 export interface AppConfig {
     /** Optional server address to automatically choose */
     serverAddress?: string;
@@ -206,6 +215,8 @@ export interface AppConfig {
     serverThemeId?: string;
     /** Custom name for the server to display in the UI */
     serverName?: string;
+    /** Links to display in the UI */
+    links?: ConfigLink[];
 }
 
 const DEFAULT_ITEM_PAGE_SETTINGS: ItemPageSettings = {
@@ -221,6 +232,7 @@ const DEFAULT_CONFIG: AppConfig = {
     watchedStateBadgeLibrary: false,
     watchedStateBadgeGenre: false,
     watchedStateBadgeSearch: false,
+    links: [],
     serverName: 'Pelagica',
     homeScreenSections: [
         {

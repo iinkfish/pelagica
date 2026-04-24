@@ -13,6 +13,13 @@ type AppConfig struct {
 	WatchedStateBadgeSearch     *bool               `json:"watchedStateBadgeSearch,omitempty"`
 	ServerThemeId               string              `json:"serverThemeId,omitempty"`
 	ServerName                  string              `json:"serverName,omitempty"`
+	Links                       []ConfigLink        `json:"links,omitempty"`
+}
+
+type ConfigLink struct {
+	URL  string `json:"url"`
+	Text string `json:"text"`
+	Icon string `json:"icon"`
 }
 
 type HomeScreenSection struct {
